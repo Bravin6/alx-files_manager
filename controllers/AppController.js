@@ -1,23 +1,68 @@
-// Importing the database client and a placeholder for Redis client
-const dbClient = require('../utils/db');
+/* eslint-disable import/no-named-as-default */
+import dbClient from '../../utils/db';
 
-// Assuming a Redis client has similar methods for the example
-const redisClient = {
-  isAlive: () => true, // Placeholder function for Redis connectivity
-};
+describe('+ AppController', () => {
+  before(function (done) {
+    this.timeout(10000);
+    Promise.all([dbClient.usersCollection(), dbClient.filesCollection()])
+      .then(([usersCollection, filesCollection]) => {
+        Promise.all([usersCollection.deleteMany({}), filesCollection.deleteMany({})])
+          .then(() => done())
+          .catch((deleteErr) => done(deleteErr));
+      }).catch((connectErr) => done(connectErr));
+  });
 
-class AppController {
-  static async getStatus(req, res) {
-    const redisAlive = redisClient.isAlive();
-    const dbAlive = dbClient.isAlive();
-    return res.status(200).json({ redis: redisAlive, db: dbAlive });
-  }
+  describe('+ GET: /status', () => {
+    it('+ Services are online', function (done) {
+      request.get('/status')
+        .expect(200)
+        .end((err, res) => {
+          if (err) {
+            return done(err);
+          }
+          expect(res.body).to.deep.eql({ redis: true, db: true });
+          done();
+        });
+    });
+  });
 
-  static async getStats(req, res) {
-    const users = await dbClient.nbUsers();
-    const files = await dbClient.nbFiles();
-    return res.status(200).json({ users, files });
-  }
-}
+  describe('+ GET: /stats', () => {
+    it('+ Correct statistics about db collections', function (done) {
+      request.get('/stats')
+        .expect(200)
+        .end((err, res) => {
+          if (err) {
+            return done(err);
+          }
+          expect(res.body).to.deep.eql({ users: 0, files: 0 });
+          done();
+        });
+    });
 
-module.exports = AppController;
+    it('+ Correct statistics about db collections [alt]', function (done) {
+      this.timeout(10000);
+      Promise.all([dbClient.usersCollection(), dbClient.filesCollection()])
+        .then(([usersCollection, filesCollection]) => {
+          Promise.all([
+            usersCollection.insertMany([{ email: 'john@mail.com' }]),
+            filesCollection.insertMany([
+              { name: 'foo.txt', type: 'file'},
+              {name: 'pic.png', type: 'image' },
+            ])
+          ])
+            .then(() => {
+              request.get('/stats')
+                .expect(200)
+                .end((err, res) => {
+                  if (err) {
+                    return done(err);
+                  }
+                  expect(res.body).to.deep.eql({ users: 1, files: 2 });
+                  done();
+                });
+            })
+            .catch((deleteErr) => done(deleteErr));
+        }).catch((connectErr) => done(connectErr));
+    });
+  });
+});
