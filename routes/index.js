@@ -1,17 +1,13 @@
-#!/usr/bin/node
-
 const express = require('express');
+const router = express.Router();
 const AppController = require('../controllers/AppController');
 const UsersController = require('../controllers/UsersController');
-const AuthController = require('../controllers/AuthController');
 
-const router = express.Router();
-
+// Existing endpoints
 router.get('/status', AppController.getStatus);
 router.get('/stats', AppController.getStats);
+
+// New endpoint for creating a user
 router.post('/users', UsersController.postNew);
-router.get('/connect', AuthController.getConnect);
-router.get('/disconnect', AuthController.getDisconnect);
-router.get('/users/me', AuthController.getMe);
 
 module.exports = router;

@@ -1,21 +1,32 @@
-#!/usr/bin/node
-
-const redisClient = require('../utils/redis');
-const dbClient = require('../utils/db');
+// controllers/AppController.js
+const redisUtils = require('../utils/redis');
+const dbUtils = require('../utils/db');
 
 class AppController {
-  static getStatus(req, res) {
-    if (redisClient.isAlive() && dbClient.isAlive()) {
-      res.json({ redis: true, db: true });
-      res.end();
+  // Handle GET /status
+  static async getStatus(req, res) {
+    try {
+      // Check if Redis and DB are alive
+      const redisAlive = await redisUtils.isAlive();
+      const dbAlive = await dbUtils.isAlive();
+
+      return res.status(200).json({ redis: redisAlive, db: dbAlive });
+    } catch (error) {
+      return res.status(500).json({ error: 'Internal Server Error' });
     }
   }
 
+  // Handle GET /stats
   static async getStats(req, res) {
-    const users = await dbClient.nbUsers();
-    const files = await dbClient.nbFiles();
-    res.json({ users, files });
-    res.end();
+    try {
+      // Fetch number of users and files in the DB
+      const usersCount = await dbUtils.getNumberOfUsers();
+      const filesCount = await dbUtils.getNumberOfFiles();
+
+      return res.status(200).json({ users: usersCount, files: filesCount });
+    } catch (error) {
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
   }
 }
 
