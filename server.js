@@ -1,5 +1,5 @@
-#!/usr/bin/node
 
+<<<<<<< HEAD
 const express = require('express');
 const routes = require('./routes'); // Load routes from routes/index.js
 
@@ -15,3 +15,14 @@ app.listen(port, () => {
 });
 
 module.exports = app;
+=======
+import express from 'express';
+import router from './routes';
+
+const app = express();
+app.use(express.json({ limit: '100mb' }));
+app.use(router);
+app.listen(process.env.PORT || 5000);
+
+export default app;
+>>>>>>> cc971b572d16c3433e79ddc3a05771323fc21b83
