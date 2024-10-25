@@ -1,15 +1,16 @@
-const express = require('express');
-const routes = require('./routes'); // Load routes from routes/index.js
+import express from 'express';
+import routes from './routes/index';
 
+// Initialize the express app
 const app = express();
-const port = process.env.PORT || 5000; // Use PORT from env or default to 5000
 
-app.use(express.json({ limit: '100mb' })); // Use JSON parser with limit
-app.use('/', routes); // Load routes
+// Use the routes defined in routes/index.js
+app.use('/', routes);
 
-// Start server
+// Set the port to the environment variable or default to 5000
+const port = process.env.PORT || 5000;
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server running on port ${port}`);
 });
 
-module.exports = app;
+export default app;
