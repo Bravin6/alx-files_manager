@@ -1,28 +1,16 @@
+import express from 'express';
+import routes from './routes/index';
 
-<<<<<<< HEAD
-const express = require('express');
-const routes = require('./routes'); // Load routes from routes/index.js
-
+// Initialize the express app
 const app = express();
-const port = process.env.PORT || 5000; // Use PORT from env or default to 5000
 
-// Use routes
+// Use the routes defined in routes/index.js
 app.use('/', routes);
 
-// Start server
+// Set the port to the environment variable or default to 5000
+const port = process.env.PORT || 5000;
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server running on port ${port}`);
 });
 
-module.exports = app;
-=======
-import express from 'express';
-import router from './routes';
-
-const app = express();
-app.use(express.json({ limit: '100mb' }));
-app.use(router);
-app.listen(process.env.PORT || 5000);
-
 export default app;
->>>>>>> cc971b572d16c3433e79ddc3a05771323fc21b83
